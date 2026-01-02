@@ -39,6 +39,8 @@ export class SetupComponent implements OnInit {
     }
 
     this.setupService.requestQuestions(this.buildPayload());
+
+    this.redirectToQuestion();
   }
 
   private buildPayload(): { [k: string]: any } {
@@ -49,5 +51,9 @@ export class SetupComponent implements OnInit {
     if (payload.type === 'Any') delete payload.type;
 
     return payload;
+  }
+
+  private redirectToQuestion() {
+    this.setupService.redirectToQuestion();
   }
 }
