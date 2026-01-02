@@ -1,1 +1,64 @@
-<p>question works!</p>
+@if (currentQuestion()) {
+  <div class="quiz-active-layout">
+    <header class="quiz-header">
+      <div class="meta-info">
+        <span class="category-tag">{{ currentQuestion()?.category }}</span>
+        <span class="difficulty-tag" [attr.data-diff]="currentQuestion()?.difficulty">
+          {{ currentQuestion()?.difficulty }}
+        </span>
+      </div>
+      <div class="step-counter">
+        <b>{{ index() + 1 }}</b> / {{ questions().length }}
+      </div>
+    </header>
+
+    <div class="question-body">
+      <div class="type-indicator">
+        {{ currentQuestion()?.type === 'boolean' ? 'T/F Question' : 'Multiple Choice' }}
+      </div>
+      <h2 class="question-title" [innerHTML]="currentQuestion()?.question"></h2>
+
+      <div class="options-grid" [class.is-boolean]="currentQuestion()?.type === 'boolean'">
+        @for (option of currentQuestion()?.options ?? []; track $index) {
+          <div class="option-container">
+            <button class="option-card"
+              [class.correct-state]="isAnswered() && option.isCorrect"
+              [class.wrong-state]="isAnswered() && selectedAnswerIndex() === $index && !option.isCorrect"
+              [class.muted-state]="isAnswered() && selectedAnswerIndex() !== $index"
+              [disabled]="isAnswered()"
+              (click)="handleAnswerClick($index)">
+
+              <span class="option-label">{{ option.text }}</span>
+            </button>
+
+            @if (isAnswered() && selectedAnswerIndex() === $index) {
+              <div class="feedback-panel" [class.is-valid]="option.isCorrect">
+                {{ option.rationale || (option.isCorrect ? 'Excellent!' : 'Not quite right.') }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <footer class="action-footer">
+      <button class="btn-secondary" (click)="toggleHint()" [disabled]="isAnswered()">
+        <span class="icon">💡</span> Hint
+      </button>
+
+      <button class="btn-primary" [disabled]="!isAnswered()" (click)="handleNextQuestion()">
+        {{ index() + 1 === questions().length ? 'FINISH' : 'NEXT QUESTION' }}
+      </button>
+    </footer>
+
+    @if (showHint() && !isAnswered()) {
+      <div class="hint-toast">
+        <p>{{ currentQuestion()?.hint }}</p>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="loading-state">
+    <p>Loading your quiz...</p>
+  </div>
+}

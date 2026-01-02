@@ -11,7 +11,8 @@ export class SetupService {
 
   // 🔹 signals
   categories = signal<Array<{ id: number; name: string }>>([]);
-  questions = signal<any[]>([]);
+  private _questions = signal<any[]>([]);
+  questions = this._questions.asReadonly();
   loading = signal(false);
 
   constructor(private http: HttpClient,
@@ -69,10 +70,10 @@ export class SetupService {
       )
       .subscribe({
         next: (res) => {
-          this.questions.set(res.results || []);
+          this._questions.set(res.results || []);
         },
         error: () => {
-          this.questions.set([]);
+          this._questions.set([]);
         },
         complete: () => {
           this.loading.set(false);
