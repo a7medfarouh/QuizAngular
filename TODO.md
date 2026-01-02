@@ -1,0 +1,3 @@
+- [ ] Update setup.component.ts to import ReactiveFormsModule and create FormGroup with controls for topicCategory, difficultyLevel, format, and questions.
+- [ ] Update setup.component.html to bind form controls using formControlName and handle difficulty level buttons.
+- [ ] Test the reactive form functionality.

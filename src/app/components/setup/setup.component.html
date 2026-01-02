@@ -1,0 +1,96 @@
+
+
+  <div class="setup-screen" [formGroup]="setupForm">
+
+  <div class="setup-header">
+    <div class="logo-badge">Quiz</div>
+    <h2>Mission Setup</h2>
+    <p>Customize your learning experience</p>
+  </div>
+
+  <div class="setup-form">
+
+    <!-- Topic Category -->
+    <div class="form-group">
+      <label>Topic Category</label>
+      <div class="custom-select-wrapper">
+        <select formControlName="category" class="w-100">
+          @for (item of categories; track $index) {
+            <option [value]="item.id">{{ item.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Difficulty -->
+    <div class="form-group">
+      <label>Difficulty Level</label>
+      <div class="segment-control">
+        <button
+          type="button"
+          [class.active]="setupForm.value.difficulty === 'Any'"
+          (click)="setDifficulty('Any')">
+          Any
+        </button>
+        <button
+          type="button"
+          [class.active]="setupForm.value.difficulty === 'Easy'"
+          (click)="setDifficulty('Easy')">
+          Easy
+        </button>
+
+        <button
+          type="button"
+          [class.active]="setupForm.value.difficulty === 'Mid'"
+          (click)="setDifficulty('Mid')">
+          Mid
+        </button>
+
+        <button
+          type="button"
+          [class.active]="setupForm.value.difficulty === 'Hard'"
+          (click)="setDifficulty('Hard')">
+          Hard
+        </button>
+      </div>
+    </div>
+
+    <!-- Format + Questions -->
+
+
+      <div class="form-group ">
+        <label>Format</label>
+        <select formControlName="type" class="w-100">
+          <option value="Any">Any</option>
+          <option value="multiple">Multiple Choice</option>
+          <option value="boolean">True / False</option>
+        </select>
+      </div>
+
+
+
+
+
+
+      <div class="form-group w-100">
+        <label>Questions</label>
+        <input
+          type="number"
+          class="number-input"
+          min="1"
+          max="50"
+          formControlName="amount">
+      </div>
+
+  </div>
+
+  <button
+    class="btn-primary-glow"
+    (click)="startChallenge()"
+    [disabled]="setupForm.invalid || isFetching">
+    START CHALLENGE
+  </button>
+
+</div>
+
+
