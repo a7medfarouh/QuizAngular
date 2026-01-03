@@ -22,7 +22,7 @@
     <div class="form-group">
       <label>Difficulty Level</label>
       <div class="segment-control">
-        @for (d of ['Any','easy','mid','hard']; track d) {
+        @for (d of ['Any','Easy','Medium','Hard']; track d) {
           <button
             type="button"
             [class.active]="setupForm.value.difficulty === d"

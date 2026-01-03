@@ -1,4 +1,4 @@
-import { computed, Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { SetupService } from './setup.service';
 import { Router } from '@angular/router';
 export interface QuizQuestion {
@@ -20,9 +20,10 @@ export interface AnswerOption {
   providedIn: 'root'
 })
 export class QuestionService {
+    score = signal(0);
 
     constructor(private setupService: SetupService,
-      private router: Router
+
     ) {}
 
     // Inside QuestionService class:
@@ -58,8 +59,5 @@ private shuffle(arr: any[]): any[] {
   return copy;
 }
 
-   redirectToQuestion() {
-    // Navigation logic to redirect to question component
-    this.router.navigate(['/result']);
-  }
+
 }

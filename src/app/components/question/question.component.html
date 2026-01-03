@@ -26,7 +26,7 @@
               [class.wrong-state]="isAnswered() && selectedAnswerIndex() === $index && !option.isCorrect"
               [class.muted-state]="isAnswered() && selectedAnswerIndex() !== $index"
               [disabled]="isAnswered()"
-              (click)="handleAnswerClick($index)">
+              (click)="handleAnswerClick($index, option.isCorrect)">
 
               <span class="option-label">{{ option.text }}</span>
             </button>

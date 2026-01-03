@@ -1,6 +1,7 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { SetupService } from '../../serivces/setup.service';
 import { QuestionService } from '../../serivces/question.service';
+import { RedirectService } from '../../serivces/redirect.service';
 
 @Component({
   selector: 'app-question',
@@ -25,14 +26,21 @@ export class QuestionComponent implements OnInit {
     return questions.length > 0 ? questions[this.index()] : null;
   });
 
-  constructor(private questionService: QuestionService) {}
+  constructor(private questionService: QuestionService,
+    private redirectService: RedirectService
+  ) {}
 
   ngOnInit(): void {}
 
-  handleAnswerClick(idx: number): void {
+  handleAnswerClick(idx: number , correct: boolean): void {
     if (this.isAnswered()) return; // Prevent changing answer
     this.selectedAnswerIndex.set(idx);
     this.isAnswered.set(true);
+    // add logic to check if the answer is correct and update score if needed
+    if(correct){
+      this.questionService.score.update(v => v + 1);
+    }
+
   }
 
   handleNextQuestion(): void {
@@ -51,7 +59,7 @@ export class QuestionComponent implements OnInit {
     this.showHint.update(v => !v);
   }
   private redirectToResult(): void {
-    this.questionService.redirectToQuestion();
+    this.redirectService.redirectToResult();
   }
 
 }

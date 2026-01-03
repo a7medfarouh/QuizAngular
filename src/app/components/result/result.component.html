@@ -1,1 +1,9 @@
-<p>result works!</p>
+<div class="result-layout">
+  <div class="finish-icon">🏆</div>
+  <h2 class="result-title">Result</h2>
+  <div class="score-circle">
+    <span class="score-num">{{ questionService.score() }}</span>
+    <span class="score-den">/ {{ questionService.quizQuestions().length }}</span>
+  </div>
+  <button class="btn-primary-glow" (click)="reset()"> Try Again </button>
+</div>

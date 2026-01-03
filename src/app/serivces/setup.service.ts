@@ -55,7 +55,7 @@ export class SetupService {
       params = params.set('category', String(payload['category']));
     }
     if (payload['difficulty'] !== undefined) {
-      params = params.set('difficulty', payload['difficulty']);
+      params = params.set('difficulty', payload['difficulty'].toLocaleLowerCase());
     }
     if (payload['type'] !== undefined) {
       params = params.set('type', payload['type']);
@@ -82,8 +82,5 @@ export class SetupService {
   }
 
 
-  redirectToQuestion() {
-    // Navigation logic to redirect to question component
-    this.router.navigate(['/question']);
-  }
+
 }

@@ -402,6 +402,9 @@ select:focus,
     max-width: 100%;
     margin: 6px 0px 0px 0px;
 }
+.result-title{
+  color: var(--text);
+}
 @keyframes scaleIn {
   from {
     opacity: 0;

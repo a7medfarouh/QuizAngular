@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { SetupService } from '../../serivces/setup.service';
+import { RedirectService } from '../../serivces/redirect.service';
 
 @Component({
   selector: 'app-setup',
@@ -21,7 +22,8 @@ export class SetupComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    public setupService: SetupService
+    public setupService: SetupService,
+    private redirectService: RedirectService
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +56,6 @@ export class SetupComponent implements OnInit {
   }
 
   private redirectToQuestion() {
-    this.setupService.redirectToQuestion();
+    this.redirectService.redirectToQuestion();
   }
 }
