@@ -1,63 +1,62 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
-import { SetupService } from '../../serivces/setup.service';
+import { Component, signal, computed } from '@angular/core';
 import { QuestionService } from '../../serivces/question.service';
 import { RedirectService } from '../../serivces/redirect.service';
 
 @Component({
   selector: 'app-question',
   standalone: true,
-  imports: [],
   templateUrl: './question.component.html',
-  styleUrl: './question.component.scss'
+  styleUrl: './question.component.scss',
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent {
 
-  // State Signals
   index = signal(0);
   selectedAnswerIndex = signal<number | null>(null);
   isAnswered = signal(false);
   showHint = signal(false);
+  aiHint = signal<string | null>(null);
 
-  // Data Signals
-  questions = this.questionService.quizQuestions; // Assuming this is a signal in your service
+  questions = this.questionService.quizQuestions;
 
-  currentQuestion = computed(() => {
-    const questions = this.questions();
-    return questions.length > 0 ? questions[this.index()] : null;
-  });
+  currentQuestion = computed(() =>
+    this.questions()[this.index()] ?? null
+  );
 
-  constructor(private questionService: QuestionService,
+  constructor(public questionService: QuestionService,
     private redirectService: RedirectService
   ) {}
 
-  ngOnInit(): void {}
+  handleAnswerClick(index: number, isCorrect: boolean) {
+    if (this.isAnswered()) return;
 
-  handleAnswerClick(idx: number , correct: boolean): void {
-    if (this.isAnswered()) return; // Prevent changing answer
-    this.selectedAnswerIndex.set(idx);
+    this.selectedAnswerIndex.set(index);
     this.isAnswered.set(true);
-    // add logic to check if the answer is correct and update score if needed
-    if(correct){
-      this.questionService.score.update(v => v + 1);
-    }
 
+    if (isCorrect) {
+      this.questionService.score.update(s => s + 1);
+    }
   }
 
-  handleNextQuestion(): void {
-    if (this.index() < this.questions().length - 1) {
-      this.index.update(v => v + 1);
-      // Reset state for the new question
-      this.isAnswered.set(false);
-      this.selectedAnswerIndex.set(null);
-      this.showHint.set(false);
-    }else{
+  handleNextQuestion() {
+    if (this.index() + 1 < this.questions().length) {
+      this.index.update(i => i + 1);
+      this.reset();
+    } else {
        this.redirectToResult();
-    }
+      }
   }
 
-  toggleHint(): void {
+  toggleHint() {
     this.showHint.update(v => !v);
   }
+
+  private reset() {
+    this.selectedAnswerIndex.set(null);
+    this.isAnswered.set(false);
+    this.showHint.set(false);
+    this.aiHint.set(null);
+  }
+
   private redirectToResult(): void {
     this.redirectService.redirectToResult();
   }

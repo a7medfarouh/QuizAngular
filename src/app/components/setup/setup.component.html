@@ -12,8 +12,8 @@
     <div class="form-group">
       <label>Topic Category</label>
       <select formControlName="category" class="w-100">
-        @for (item of setupService.categories(); track item.id) {
-          <option [value]="item.id">{{ item.name }}</option>
+        @for (item of categories; track item.id) {
+        <option [value]="item.id">{{ item.name }}</option>
         }
       </select>
     </div>
@@ -23,12 +23,9 @@
       <label>Difficulty Level</label>
       <div class="segment-control">
         @for (d of ['Any','Easy','Medium','Hard']; track d) {
-          <button
-            type="button"
-            [class.active]="setupForm.value.difficulty === d"
-            (click)="setDifficulty(d)">
-            {{ d }}
-          </button>
+        <button type="button" [class.active]="setupForm.value.difficulty === d" (click)="setDifficulty(d)">
+          {{ d }}
+        </button>
         }
       </div>
     </div>
@@ -46,20 +43,12 @@
     <!-- Amount -->
     <div class="form-group">
       <label>Questions</label>
-      <input
-        type="number"
-        min="1"
-        max="50"
-        formControlName="amount"
-        class="number-input">
+      <input type="number" min="1" max="50" formControlName="amount" class="number-input">
     </div>
 
   </div>
 
-  <button
-    class="btn-primary-glow"
-    (click)="startChallenge()"
-    [disabled]="setupService.loading()">
+  <button class="btn-primary-glow" (click)="startChallenge()" [disabled]="setupService.loading()">
     {{ setupService.loading() ? 'LOADING...' : 'START CHALLENGE' }}
   </button>
 

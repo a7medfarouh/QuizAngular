@@ -1,86 +1,49 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Subject, exhaustMap, catchError, finalize, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SetupService {
 
-  private baseApiUrl = 'https://opentdb.com/';
+  private apiUrl = 'https://opentdb.com/api.php';
 
-  // 🔹 signals
-  categories = signal<Array<{ id: number; name: string }>>([]);
-  private _questions = signal<any[]>([]);
-  questions = this._questions.asReadonly();
+  questions = signal<any[]>([]);
   loading = signal(false);
 
-  constructor(private http: HttpClient,
-    private router: Router
-  ) {}
+  hasQuestions = computed(() => this.questions().length > 0);
 
-  // ===============================
-  // Categories
-  // ===============================
-  loadCategories() {
-    this.http
-      .get<{ trivia_categories: Array<{ id: number; name: string }> }>(
-        `${this.baseApiUrl}api_category.php`
-      )
-      .subscribe({
-        next: (res) => {
-          this.categories.set([
-            { id: 0, name: 'Any' },
-            ...(res.trivia_categories || [])
-          ]);
-        },
-        error: () => {
-          this.categories.set([]);
-        }
-      });
+  private fetchTrigger$ = new Subject<any>();
+
+  constructor(private http: HttpClient) {}
+
+  fetchCategories() {
+    return this.http.get<{
+      trivia_categories: { id: number; name: string }[]
+    }>('https://opentdb.com/api_category.php');
   }
 
-  // ===============================
-  // Questions
-  // ===============================
-  requestQuestions(payload: { [k: string]: any }) {
-    if (this.loading()) return;
+  fetchQuestions$() {
+    return this.fetchTrigger$.pipe(
+      exhaustMap(payload => {
+        let params = new HttpParams().set('amount', payload.amount ?? 10);
 
-    let params = new HttpParams().set(
-      'amount',
-      String(payload['amount'] ?? 10)
+        if (payload.category) params = params.set('category', payload.category);
+        if (payload.difficulty) params = params.set('difficulty', payload.difficulty);
+        if (payload.type) params = params.set('type', payload.type);
+
+        this.loading.set(true);
+
+        return this.http.get<{ results: any[] }>(this.apiUrl, { params }).pipe(
+          catchError(() => of({ results: [] })),
+          finalize(() => this.loading.set(false))
+        );
+      })
     );
-
-    if (payload['category'] !== undefined) {
-      params = params.set('category', String(payload['category']));
-    }
-    if (payload['difficulty'] !== undefined) {
-      params = params.set('difficulty', payload['difficulty'].toLocaleLowerCase());
-    }
-    if (payload['type'] !== undefined) {
-      params = params.set('type', payload['type']);
-    }
-
-    this.loading.set(true);
-
-    this.http
-      .get<{ response_code: number; results: any[] }>(
-        `${this.baseApiUrl}api.php`,
-        { params }
-      )
-      .subscribe({
-        next: (res) => {
-          this._questions.set(res.results || []);
-        },
-        error: () => {
-          this._questions.set([]);
-        },
-        complete: () => {
-          this.loading.set(false);
-        }
-      });
   }
 
-
-
+  requestQuestions(payload: any) {
+    this.fetchTrigger$.next(payload);
+  }
 }
