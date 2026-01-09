@@ -1,38 +1,42 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HintService {
-  // IMPORTANT: For production, move this to an environment file or backend
-  private apiKey = 'AIzaSyCFKNpXPiRqYnf2F32xr2ftQ6xLipPfqDg';
+  private apiKey = environment.geminiApiKey;
 
-  async getAIHint(question: { question?: string; options?: { text?: string }[]; answers?: any[] }): Promise<string> {
-    const qText = question?.question ?? '';
-    const opts = (question.options ?? question.answers ?? [])
-      .map((o: any) => (typeof o === 'string' ? o : o?.text ?? ''))
-      .filter(Boolean)
-      .join(', ');
+async getAIHint(question: {
+  question?: string;
+  options?: { text?: string }[];
+  answers?: any[];
+}): Promise<string> {
 
-    const systemPrompt = 'You are an expert educational assistant. Give a very clever and concise hint to the question without giving the answer directly.';
-    const prompt = `Question: ${qText}\nOptions: ${opts}\nGive one concise hint (do not reveal the answer).`;
+  const qText = question?.question ?? '';
+  const opts = (question.options ?? question.answers ?? [])
+    .map((o: any) => o?.text ?? o)
+    .filter(Boolean)
+    .join(', ');
 
-    if (!this.apiKey) {
-      return 'Try eliminating options that contradict the question wording.';
-    }
+  const prompt = `
+Give ONE short clever hint.
+Do NOT reveal the answer.
 
-    try {
-      // Use v1beta and gemini-1.5-flash
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+Question:
+${qText}
 
-      const res = await fetch(url, {
+Options:
+${opts}
+`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // The REST API uses snake_case for system instructions
-          system_instruction: {
-            parts: [{ text: systemPrompt }]
-          },
           contents: [
             {
               role: 'user',
@@ -40,23 +44,30 @@ export class HintService {
             }
           ]
         })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Log the error to see exactly why it's failing (400, 404, etc.)
-        console.error('Gemini API Error Status:', res.status);
-        console.error('Gemini API Error Data:', data);
-        return 'Think about which options are best supported by the question details.';
       }
+    );
 
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      return (text && String(text).trim()) || 'Look for key terms that connect the question to the options.';
+    const data = await res.json();
 
-    } catch (error) {
-      console.error('Network/Fetch error:', error);
-      return 'Unable to reach AI service; try narrowing choices by elimination.';
+    if (!res.ok) {
+      console.error('Gemini error:', data);
+      return 'Focus on the option that best matches the question logic.';
     }
+
+    return (
+      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+      || 'Try eliminating options that contradict the question.'
+    );
+
+  } catch (e) {
+    console.error(e);
+    return 'Think logically and narrow down the choices.';
   }
+}
+
+async checkAvailableModels() {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`);
+  const data = await res.json();
+  console.log("Allowed Models for your Key:", data);
+}
 }

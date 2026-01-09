@@ -1,6 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { QuestionService } from '../../serivces/question.service';
 import { RedirectService } from '../../serivces/redirect.service';
+import { HintService } from '../../serivces/hint.service';
 
 @Component({
   selector: 'app-question',
@@ -23,7 +24,8 @@ export class QuestionComponent {
   );
 
   constructor(public questionService: QuestionService,
-    private redirectService: RedirectService
+    private redirectService: RedirectService,
+    private hintService: HintService
   ) {}
 
   handleAnswerClick(index: number, isCorrect: boolean) {
@@ -46,9 +48,37 @@ export class QuestionComponent {
       }
   }
 
-  toggleHint() {
-    this.showHint.update(v => !v);
+ async toggleHint(): Promise<void> {
+  if (this.isAnswered()) return;
+
+  // لو الـ hint ظاهر → اقفليه
+  if (this.showHint()) {
+    this.showHint.set(false);
+    return;
   }
+
+  const q = this.currentQuestion();
+  if (!q) return;
+
+  // لو فيه hint ثابت في السؤال
+  if (q.hint && q.hint.trim() !== '') {
+    this.showHint.set(true);
+    return;
+  }
+
+  // لو AI hint متجاب قبل كده
+  if (this.aiHint()) {
+    this.showHint.set(true);
+    return;
+  }
+
+  // نجيب hint من AI
+  this.aiHint.set('Thinking of a smart hint...');
+  this.showHint.set(true);
+
+  const hint = await this.hintService.getAIHint(q);
+  this.aiHint.set(hint);
+}
 
   private reset() {
     this.selectedAnswerIndex.set(null);
