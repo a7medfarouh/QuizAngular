@@ -15,39 +15,58 @@ A lightweight Angular quiz app that serves multiple-choice questions, shows resu
 - Optional AI hint generation via Gemini API (server key required)
 
 ## Prerequisites
+# AI-Powered Quiz Application (Angular 17)
 
-- Node.js (16+ recommended)
-- npm (or yarn)
-- Angular CLI (optional, for running `ng` commands)
+An interactive, high-performance Single-Page Application (SPA) built with Angular 17 that delivers dynamic quizzes using the Open Trivia Database (OpenTDB) and leverages Google Gemini AI to provide smart, contextual hints.
 
-## Setup
+🚀 Key Features
 
-1. Clone the repo and install dependencies:
+- Modern Reactivity with Signals: Fully implemented using Angular 17 Signals for efficient, fine-grained state management and real-time UI updates.
+- AI Study Assistant: Integrated with Google’s Generative Language API (Gemini) to generate "nudge" hints. These hints help users think through the question without revealing the actual answer.
+- Dynamic Trivia Engine: Fetches a diverse range of categories, difficulties, and question types from the OpenTDB API.
+- Real-time Scoring: Instant feedback and score tracking as users progress through the quiz.
+- Clean SPA Architecture: Seamless transitions and lightning-fast performance typical of a modern Angular single-page app.
+
+🛠️ Tech Stack
+
+- Frontend Framework: Angular 17
+- State Management: Angular Signals
+- Styling: SCSS (Tailwind can be added if desired)
+- APIs:
+  - Questions: Open Trivia Database (OpenTDB)
+  - AI Hints: Google Gemini API
+- HTTP Client: Angular HttpClient
+
+📦 Installation & Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/a7medfarouh/QuizAngular.git
+cd QuizAngular
+```
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Environments
+Configure API Keys
 
-- Development environment is [src/environments/environment.ts](src/environments/environment.ts#L1-L4). It includes a `geminiApiKey` for local development.
-- Production environment is [src/environments/environment.prod.ts](src/environments/environment.prod.ts#L1-L4). Keep the production key empty in the repo and inject it during CI/CD or the build pipeline.
-
-Set a Gemini API key before using the hint feature. Example (local):
+Obtain an API key from Google AI Studio (Gemini). Create or update your `src/environments/environment.ts` file with the key:
 
 ```ts
 // src/environments/environment.ts
 export const environment = {
-	production: false,
-	geminiApiKey: 'YOUR_GEMINI_KEY_HERE'
+  production: false,
+  geminiApiKey: 'YOUR_GEMINI_API_KEY'
 };
 ```
 
-Do NOT commit production API keys to source control.
+For production, provide the key to `src/environments/environment.prod.ts` at build time via your CI/CD or secret management solution. Do not commit production keys.
 
-## Running the app
-
-Run locally:
+Run the application:
 
 ```bash
 npm start
@@ -55,59 +74,34 @@ npm start
 ng serve --open
 ```
 
-Build for production:
+Open http://localhost:4200/ in your browser.
 
-```bash
-npm run build
-# or
-ng build --configuration=production
-```
+🧠 How the AI Hints Work
 
-If your CI/CD injects environment values, ensure the `geminiApiKey` is provided to `environment.prod.ts` during the build.
+Rather than giving the answer, the app sends the question and options to Gemini with a system prompt such as:
 
-## Testing
+> "Provide a helpful hint for this question that guides the user toward the logic of the correct answer, but do NOT mention the answer itself."
 
-Run tests with:
+This produces educational nudges that help users reason without spoiling the answer.
 
-```bash
-npm test
-```
+📂 Project Structure (important paths)
 
-## Important files and structure
+- `src/app/services` — `QuizService` (OpenTDB) and `AiService` / `hint.service.ts` (Gemini integration).
+- `src/app/components` — `question/`, `result/`, `setup/` components.
+- Signals: used across components to track `currentQuestion`, `score`, and `loadingState`.
+- `src/environments/environment.ts` and `src/environments/environment.prod.ts` — API key configuration.
 
-- `src/app/serivces/hint.service.ts` — calls Gemini to request a short hint.
-- `src/app/components` — UI components: `question`, `result`, `setup`.
-- `src/environments/*` — environment configs for dev/prod.
-- `angular.json`, `package.json` — build and dependency configuration.
+🤝 Contributing
 
-## Troubleshooting
+Contributions, issues, and feature requests are welcome! Fork, create a branch, and open a PR with clear changes and tests where applicable.
 
-- Cannot find module `@angular/fire/remote-config` or its type declarations:
-	- If you intentionally use AngularFire remote config, install and configure the required packages:
-
-		```bash
-		npm install firebase @angular/fire
-		```
-
-	- If you do not use remote-config, search for imports of `@angular/fire/remote-config` and remove or replace them. Example search:
-
-		```bash
-		grep -R "@angular/fire/remote-config" -n
-		```
-
-- Gemini/API errors: make sure the `geminiApiKey` is valid and has appropriate quotas. Check console logs in `hint.service.ts` for details.
-
-## Security
-
-- Never commit API keys. For production, inject secrets via your CI/CD or environment variables and write them to `environment.prod.ts` at build time.
-
-## Contributing
-
-- Fork the repo, create a topic branch, and open a PR with a clear description and tests where appropriate.
-
-## License
-
-This project does not include a license file. Add an appropriate license if you plan to share the repository publicly.
+Created by Ahmed Farouh
 
 ---
-If you'd like, I can (A) add `src/environments/environment.ts` and `src/environments/environment.prod.ts` files now, (B) replace the inline API key in `src/app/serivces/hint.service.ts` to import the environment, or (C) run `npm install firebase @angular/fire` to resolve the AngularFire error. Tell me which next step you want.
+If you want, I can also:
+- Add or update `src/environments/environment.ts` and `src/environments/environment.prod.ts` with example placeholders.
+- Refactor `src/app/serivces/hint.service.ts` to import from the environment file.
+- Run `npm install` or start the dev server for you.
+
+Files edited: [README.md](README.md)
+
