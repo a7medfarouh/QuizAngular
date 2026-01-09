@@ -1,27 +1,113 @@
+
 # Quiz
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+A lightweight Angular quiz app that serves multiple-choice questions, shows results, and can fetch short AI-generated hints using Google's Generative Language API (Gemini).
 
-## Development server
+**Quick links**
+- **Source:** [src/app](src/app)
+- **Hint service:** [src/app/serivces/hint.service.ts](src/app/serivces/hint.service.ts#L1)
+- **Environments:** [src/environments/environment.ts](src/environments/environment.ts#L1-L4) and [src/environments/environment.prod.ts](src/environments/environment.prod.ts#L1-L4)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Features
 
-## Code scaffolding
+- Present multiple-choice questions
+- Provide result screen with scoring
+- Optional AI hint generation via Gemini API (server key required)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Prerequisites
 
-## Build
+- Node.js (16+ recommended)
+- npm (or yarn)
+- Angular CLI (optional, for running `ng` commands)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Setup
 
-## Running unit tests
+1. Clone the repo and install dependencies:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm install
+```
 
-## Running end-to-end tests
+2. Environments
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Development environment is [src/environments/environment.ts](src/environments/environment.ts#L1-L4). It includes a `geminiApiKey` for local development.
+- Production environment is [src/environments/environment.prod.ts](src/environments/environment.prod.ts#L1-L4). Keep the production key empty in the repo and inject it during CI/CD or the build pipeline.
 
-## Further help
+Set a Gemini API key before using the hint feature. Example (local):
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```ts
+// src/environments/environment.ts
+export const environment = {
+	production: false,
+	geminiApiKey: 'YOUR_GEMINI_KEY_HERE'
+};
+```
+
+Do NOT commit production API keys to source control.
+
+## Running the app
+
+Run locally:
+
+```bash
+npm start
+# or
+ng serve --open
+```
+
+Build for production:
+
+```bash
+npm run build
+# or
+ng build --configuration=production
+```
+
+If your CI/CD injects environment values, ensure the `geminiApiKey` is provided to `environment.prod.ts` during the build.
+
+## Testing
+
+Run tests with:
+
+```bash
+npm test
+```
+
+## Important files and structure
+
+- `src/app/serivces/hint.service.ts` — calls Gemini to request a short hint.
+- `src/app/components` — UI components: `question`, `result`, `setup`.
+- `src/environments/*` — environment configs for dev/prod.
+- `angular.json`, `package.json` — build and dependency configuration.
+
+## Troubleshooting
+
+- Cannot find module `@angular/fire/remote-config` or its type declarations:
+	- If you intentionally use AngularFire remote config, install and configure the required packages:
+
+		```bash
+		npm install firebase @angular/fire
+		```
+
+	- If you do not use remote-config, search for imports of `@angular/fire/remote-config` and remove or replace them. Example search:
+
+		```bash
+		grep -R "@angular/fire/remote-config" -n
+		```
+
+- Gemini/API errors: make sure the `geminiApiKey` is valid and has appropriate quotas. Check console logs in `hint.service.ts` for details.
+
+## Security
+
+- Never commit API keys. For production, inject secrets via your CI/CD or environment variables and write them to `environment.prod.ts` at build time.
+
+## Contributing
+
+- Fork the repo, create a topic branch, and open a PR with a clear description and tests where appropriate.
+
+## License
+
+This project does not include a license file. Add an appropriate license if you plan to share the repository publicly.
+
+---
+If you'd like, I can (A) add `src/environments/environment.ts` and `src/environments/environment.prod.ts` files now, (B) replace the inline API key in `src/app/serivces/hint.service.ts` to import the environment, or (C) run `npm install firebase @angular/fire` to resolve the AngularFire error. Tell me which next step you want.
